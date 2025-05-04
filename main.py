@@ -1,37 +1,39 @@
 from fastapi import FastAPI, Request
 import json
-import datetime
 
 app = FastAPI()
 
 @app.post("/receive")
 async def receive_data(request: Request):
     try:
-        # Parse incoming JSON
+        # Parse incoming JSON from Zapier
         data = await request.json()
 
-        # ✅ Log to terminal (Render Logs)
-        print("✅ Webhook hit! Incoming data:")
-        print(json.dumps(data, indent=4))
-        print("✅ Webhook hit! Incoming data:")
-        print(json.dumps(data, indent=4))
+        # If using 'raw_payload' (JSON string inside), decode it
+        if "raw_payload" in data:
+            try:
+                data = json.loads(data["raw_payload"])
+            except json.JSONDecodeError:
+                return {
+                    "status": "error",
+                    "message": "Failed to parse JSON inside 'raw_payload'."
+                }
 
-        # ✅ Log to separate file for debugging
-        timestamp = datetime.datetime.utcnow().isoformat()
-        with open("webhook_debug_log.txt", "a") as debug_log:
-            debug_log.write(f"\n[{timestamp} UTC] Webhook data:\n")
-            debug_log.write(json.dumps(data, indent=4))
-            debug_log.write("\n")
-
-        # ✅ Save to file for Streamlit
+        # Save to a file for use in Streamlit
         with open("latest_webhook_data.json", "w") as f:
             json.dump(data, f, indent=4)
 
-        return {"status": "success", "message": "Data received and saved"}
+        return {
+            "status": "success",
+            "message": "Data received",
+            "clients_found": len(data.get("clients", [])) if "clients" in data else 0
+        }
 
     except Exception as e:
-        error_msg = f"❌ Error in webhook: {str(e)}"
-        print(error_msg)
-        return {"status": "error", "message": str(e)}
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
 
 
