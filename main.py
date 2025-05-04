@@ -13,6 +13,8 @@ async def receive_data(request: Request):
         # ✅ Log to terminal (Render Logs)
         print("✅ Webhook hit! Incoming data:")
         print(json.dumps(data, indent=4))
+        print("✅ Webhook hit! Incoming data:")
+        print(json.dumps(data, indent=4))
 
         # ✅ Log to separate file for debugging
         timestamp = datetime.datetime.utcnow().isoformat()
