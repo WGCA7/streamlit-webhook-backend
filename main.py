@@ -32,5 +32,3 @@ async def receive_data(request: Request):
 
 
 
-
-
